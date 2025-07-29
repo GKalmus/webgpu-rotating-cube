@@ -122,8 +122,9 @@ function frame() {
 			format: depthFormat,
 			usage: GPUTextureUsage.RENDER_ATTACHMENT,
 		});
+		renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 	}
-	renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
+
 	const transformationMatrix = getTransformationMatrix();
 	device.queue.writeBuffer(
 		uniformBuffer,
