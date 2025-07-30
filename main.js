@@ -17,9 +17,10 @@ const cubeShaderModule = device.createShaderModule({
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('webgpu');
 
-const devicePixelRatio = window.devicePixelRatio;
-canvas.width = canvas.clientWidth * devicePixelRatio;
-canvas.height = canvas.clientHeight * devicePixelRatio;
+const resolution = { x: 1920, y: 1080 };
+
+canvas.width = resolution.x;
+canvas.height = resolution.y;
 
 const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 const depthFormat = 'depth24plus';
@@ -78,7 +79,7 @@ const uniformBindGroup = device.createBindGroup({
 	entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
 })
 
-const clearColor = [0.3, 0.3, 0.3, 1];
+const clearColor = [0, 0, 0, 0];
 const renderPassDescriptor = {
 	colorAttachments: [{
 		view: undefined,
@@ -94,7 +95,7 @@ const renderPassDescriptor = {
 	},
 };
 
-let aspect = canvas.width / canvas.height;
+const aspect = canvas.width / canvas.height;
 const projectionMatrix = mat4.perspective((2 * Math.PI) / 5, aspect, 1, 100.0);
 const modelViewProjectionMatrix = mat4.create();
 
@@ -109,22 +110,6 @@ function getTransformationMatrix() {
 }
 
 function frame() {
-	const currentWidth = canvas.clientWidth * devicePixelRatio;
-	const currentHeight = canvas.clientHeight * devicePixelRatio;
-
-	if ((currentWidth !== canvas.width || currentHeight !== canvas.height || !depthTexture) && currentWidth && currentHeight) {
-		if (depthTexture) { depthTexture.destroy() }
-		canvas.width = currentWidth;
-		canvas.height = currentHeight;
-		aspect = canvas.width / canvas.height;
-		depthTexture = device.createTexture({
-			size: [canvas.width, canvas.height],
-			format: depthFormat,
-			usage: GPUTextureUsage.RENDER_ATTACHMENT,
-		});
-		renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
-	}
-
 	const transformationMatrix = getTransformationMatrix();
 	device.queue.writeBuffer(
 		uniformBuffer,
